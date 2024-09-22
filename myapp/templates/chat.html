@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Query Interface</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #0f3460;
+            --highlight-color: #e94560;
+            --text-color: #ffffff;
+            --input-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--primary-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--secondary-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, var(--accent-color), var(--highlight-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .new-chat-btn {
+            background: var(--highlight-color);
+            color: var(--text-color);
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .new-chat-btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-history {
+            margin-top: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-history h3 {
+            color: var(--text-color);
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .chat-history ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .chat-history li {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: var(--primary-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-history li:hover {
+            background: var(--accent-color);
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(15, 52, 96, 0.2) 0%, rgba(15, 52, 96, 0) 40%),
+                radial-gradient(circle at 90% 80%, rgba(233, 69, 96, 0.2) 0%, rgba(233, 69, 96, 0) 40%);
+            pointer-events: none;
+        }
+
+        .chat-header {
+            background: var(--accent-color);
+            color: var(--text-color);
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--highlight-color);
+            color: var(--text-color);
+            border-bottom-right-radius: 0;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background: var(--accent-color);
+            color: var(--text-color);
+            border-bottom-left-radius: 0;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        #query {
+            flex-grow: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        #query:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--highlight-color);
+        }
+
+        #send-button {
+            background: var(--highlight-color);
+            color: var(--text-color);
+            border: none;
+            padding: 15px 30px;
+            margin-left: 10px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #send-button:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--highlight-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">AI+</div>
+            <button class="new-chat-btn">+ New Chat</button>
+            <div class="chat-history">
+                <h3>Today</h3>
+                <ul id="today-history"></ul>
+                <h3>Yesterday</h3>
+                <ul id="yesterday-history"></ul>
+                <h3>Previous 7 Days</h3>
+                <ul id="week-history"></ul>
+            </div>
+        </div>
+        <div class="chat-container">
+            <div class="chat-header">
+                Advanced AI Query Interface
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="input-area">
+                <input type="text" id="query" placeholder="Ask me anything...">
+                <button id="send-button" onclick="sendQuery()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = {};
+
+        function sendQuery() {
+            var query = document.getElementById("query").value;
+            if (query.trim() === "") return;
+
+            addMessage(query, true);
+            document.getElementById("query").value = "";
+
+            fetch(`/get_user_data?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    addMessage(formatResponse(data), false);
+                    saveChatHistory(query);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    addMessage("Sorry, an error occurred. Please try again.", false);
+                });
+        }
+
+        function addMessage(message, isUser) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
+            
+            const messageContent = document.createElement('div');
+            messageContent.textContent = message;
+            messageElement.appendChild(messageContent);
+
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatResponse(data) {
+            return JSON.stringify(data, null, 2);
+        }
+
+        function saveChatHistory(query) {
+            const now = new Date();
+            const dateKey = now.toDateString();
+            if (!chatHistory[dateKey]) {
+                chatHistory[dateKey] = [];
+            }
+            chatHistory[dateKey].push({ query, timestamp: now });
+            updateChatHistoryDisplay();
+        }
+
+        function updateChatHistoryDisplay() {
+            const todayList = document.getElementById('today-history');
+            const yesterdayList = document.getElementById('yesterday-history');
+            const weekList = document.getElementById('week-history');
+
+            todayList.innerHTML = '';
+            yesterdayList.innerHTML = '';
+            weekList.innerHTML = '';
+
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+
+            Object.keys(chatHistory).forEach(dateKey => {
+                const date = new Date(dateKey);
+                let list;
+                if (date.toDateString() === today.toDateString()) {
+                    list = todayList;
+                } else if (date.toDateString() === yesterday.toDateString()) {
+                    list = yesterdayList;
+                } else if (date >= weekAgo) {
+                    list = weekList;
+                }
+
+                if (list) {
+                    chatHistory[dateKey].forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.query;
+                        li.onclick = () => loadChat(dateKey, item.timestamp);
+                        list.appendChild(li);
+                    });
+                }
+            });
+        }
+
+        function loadChat(dateKey, timestamp) {
+            // Placeholder for loading specific chat
+            console.log(`Loading chat from ${dateKey} at ${timestamp}`);
+        }
+
+        document.getElementById("query").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendQuery();
+            }
+        });
+
+        document.querySelector(".new-chat-btn").addEventListener("click", function() {
+            document.getElementById("chat-messages").innerHTML = "";
+        });
+
+        // Initialize chat history display
+        updateChatHistoryDisplay();
+    </script>
+</body>
+
+</html>
